@@ -34,16 +34,18 @@
             z-index: 1000;
         }
     </style>
-    <!-- 核心依赖 -->
+    <!-- 基础依赖 -->
     <script src="https://unpkg.com/react@16.8.6/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@16.8.6/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/redux@3.7.2/dist/redux.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-redux@7.1.3/dist/react-redux.min.js" crossorigin></script>
+    
+    <!-- Kepler.gl 相关依赖 -->
     <script src="https://unpkg.com/react-virtualized@9.21.0/dist/umd/react-virtualized.js" crossorigin></script>
     <script src="https://unpkg.com/react-helmet@5.2.0/lib/react-helmet.min.js" crossorigin></script>
-    <script src="https://unpkg.com/react-palm@3.1.2/dist/react-palm.min.js" crossorigin></script>
+    <script src="https://d1a3f4spazzrp4.cloudfront.net/kepler.gl/umd/react-palm.min.js" crossorigin></script>
     <script src="https://unpkg.com/mapbox-gl@1.13.1/dist/mapbox-gl.js" crossorigin></script>
-    <script src="https://unpkg.com/kepler.gl@2.5.5/umd/keplergl.min.js" crossorigin></script>
+    <script src="https://d1a3f4spazzrp4.cloudfront.net/kepler.gl/umd/keplergl.min.js" crossorigin></script>
 </head>
 <body>
     <div id="app">
@@ -62,6 +64,12 @@
                 'mapboxgl': window.mapboxgl
             };
 
+            for (const [name, obj] of Object.entries(deps)) {
+                if (!obj) {
+                    console.error(`${name} 未能加载`);
+                }
+            }
+
             const missing = Object.entries(deps)
                 .filter(([name, obj]) => !obj)
                 .map(([name]) => name);
@@ -75,6 +83,7 @@
                         <ul>
                             ${missing.map(name => `<li>${name}</li>`).join('')}
                         </ul>
+                        <p>请检查控制台获取详细信息</p>
                     </div>
                 `;
                 return false;
