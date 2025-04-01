@@ -65,37 +65,14 @@
         // 加载数据
         async function loadData() {
             try {
-                const response = await fetch('yelp_montreal_restaurants_detailed_with_geotag.csv');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const data = await response.text();
+                const config = await fetch("kepler.gl.json").then(res => res.json());
+                const csvText = await fetch("yelp_montreal_restaurants_detailed_with_geotag.csv").then(res => res.text());
 
                 const dataset = {
-                    data: data,
+                    data: csvText,
                     info: {
                         id: 'restaurants',
                         label: '蒙特利尔餐厅'
-                    }
-                };
-
-                const config = {
-                    visState: {
-                        filters: [],
-                        layers: [{
-                            id: 'point',
-                            type: 'point',
-                            config: {
-                                dataId: 'restaurants',
-                                columns: {
-                                    lat: 'latitude',
-                                    lng: 'longitude'
-                                },
-                                isVisible: true,
-                                colorField: null,
-                                color: [255, 0, 0]
-                            }
-                        }]
                     }
                 };
 
