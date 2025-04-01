@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>蒙特利尔餐厅地图</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        #root {
+            width: 100vw;
+            height: 100vh;
+        }
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+            color: #666;
+        }
+        .error {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ff4444;
+            text-align: center;
+            padding: 20px;
+            background: #fff;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/redux@4.1.1/dist/redux.min.js"></script>
+    <script src="https://unpkg.com/react-redux@7.2.6/dist/react-redux.min.js"></script>
+    <script src="https://unpkg.com/kepler.gl@2.5.0/dist/kepler.gl.min.js"></script>
+    <script>
+        // Kepler.gl 配置
+        const config = {
+            readOnly: true,
+            disableMapControls: ['edit', 'save', 'export'],
+            mapStyle: 'mapbox://styles/mapbox/light-v9',
+            mapboxApiAccessToken: 'YOUR_MAPBOX_TOKEN' // 请替换为您的 Mapbox Token
+        };
+
+        // 加载地图数据
+        async function loadMapData() {
+            try {
+                const response = await fetch('yelp_montreal_restaurants_detailed_with_geotag.csv');
+                const data = await response.text();
+                
+                // 处理 CSV 数据
+                const processedData = keplerGl.processCsvData(data);
+                
+                // 创建地图
+                const map = new keplerGl.KeplerGl({
+                    id: 'map',
+                    width: window.innerWidth,
+                    height: window.innerHeight,
+                    ...config
+                });
+
+                // 添加数据
+                map.addDataToMap({
+                    datasets: [{
+                        info: {
+                            label: '蒙特利尔餐厅',
+                            id: 'restaurants'
+                        },
+                        data: processedData
+                    }]
+                });
+
+                // 渲染地图
+                ReactDOM.render(
+                    React.createElement(keplerGl.KeplerGl, {
+                        id: 'map',
+                        width: window.innerWidth,
+                        height: window.innerHeight,
+                        ...config
+                    }),
+                    document.getElementById('root')
+                );
+            } catch (error) {
+                console.error('加载地图失败:', error);
+                document.getElementById('root').innerHTML = `
+                    <div class="error">
+                        <h3>加载失败</h3>
+                        <p>请确保已设置正确的 Mapbox Token</p>
+                    </div>
+                `;
+            }
+        }
+
+        // 页面加载完成后初始化地图
+        window.addEventListener('load', loadMapData);
+
+        // 窗口大小改变时调整地图大小
+        window.addEventListener('resize', () => {
+            const map = document.querySelector('.kepler-gl');
+            if (map) {
+                map.style.width = window.innerWidth + 'px';
+                map.style.height = window.innerHeight + 'px';
+            }
+        });
+    </script>
+</body>
+</html> 
